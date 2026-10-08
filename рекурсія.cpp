@@ -1,34 +1,14 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
-#include <vector>
-#include <unordered_map>
 
 using namespace std;
 
-string reverseMain(const string& text) {
-    if (text.size() <= 1) {
-        return text;
-    }
-
-    return reverseMain(text.substr(1)) + text[0];
-}
-
-void reverseTailHelper(const string& text, int index, string& result) {
+string reverseString(const string& text, int index) {
     if (index < 0) {
-        return;
+        return "";
     }
 
-    result += text[index];
-    reverseTailHelper(text, index - 1, result);
-}
-
-string reverseTail(const string& text) {
-    string result;
-    result.reserve(text.size());
-
-    reverseTailHelper(text, static_cast<int>(text.size()) - 1, result);
-
-    return result;
+    return text[index] + reverseString(text, index - 1);
 }
 
 class ListNode {
@@ -41,131 +21,74 @@ public:
     }
 };
 
-ListNode* swapPairsMain(ListNode* head) {
-    if (!head || !head->next) {
+ListNode* createList(const int values[], int size, int index = 0) {
+    if (index >= size) {
+        return nullptr;
+    }
+
+    return new ListNode(
+        values[index],
+        createList(values, size, index + 1)
+    );
+}
+
+ListNode* swapPairs(ListNode* head) {
+    if (head == nullptr || head->next == nullptr) {
         return head;
     }
 
     ListNode* second = head->next;
-
-    head->next = swapPairsMain(second->next);
+    head->next = swapPairs(second->next);
     second->next = head;
 
     return second;
 }
 
-ListNode* swapPairsIter(ListNode* head) {
-    ListNode dummy(0, head);
-    ListNode* prev = &dummy;
-
-    while (head && head->next) {
-        ListNode* first = head;
-        ListNode* second = head->next;
-
-        prev->next = second;
-        first->next = second->next;
-        second->next = first;
-
-        prev = first;
-        head = first->next;
-    }
-
-    return dummy.next;
-}
-
-ListNode* createList(const vector<int>& values) {
-    ListNode dummy;
-    ListNode* current = &dummy;
-
-    for (int value : values) {
-        current->next = new ListNode(value);
-        current = current->next;
-    }
-
-    return dummy.next;
-}
-
 void printList(ListNode* head) {
-    while (head) {
-        cout << head->value;
-
-        if (head->next) {
-            cout << " -> ";
-        }
-
-        head = head->next;
+    if (head == nullptr) {
+        cout << endl;
+        return;
     }
 
-    cout << endl;
+    cout << head->value;
+
+    if (head->next != nullptr) {
+        cout << " -> ";
+    }
+
+    printList(head->next);
 }
 
 void deleteList(ListNode* head) {
-    while (head) {
-        ListNode* temp = head;
-        head = head->next;
-        delete temp;
+    if (head == nullptr) {
+        return;
     }
+
+    deleteList(head->next);
+    delete head;
 }
 
-unordered_map<int, long long> fibCache;
-
-long long fibMain(int n) {
-    if (n < 2) {
-        return n;
+long long fibonacci(int n) {
+    if (n == 0) {
+        return 0;
     }
 
-    if (fibCache.count(n)) {
-        return fibCache[n];
+    if (n == 1) {
+        return 1;
     }
 
-    fibCache[n] = fibMain(n - 1) + fibMain(n - 2);
-
-    return fibCache[n];
+    return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-long long fibIter(int n) {
-    if (n < 2) {
-        return n;
-    }
-
-    long long a = 0;
-    long long b = 1;
-
-    for (int i = 2; i <= n; ++i) {
-        long long next = a + b;
-        a = b;
-        b = next;
-    }
-
-    return b;
-}
-
-int climbStairsMain(int n) {
+int climbStairs(int n) {
     if (n <= 2) {
         return n;
     }
 
-    return climbStairsMain(n - 1) + climbStairsMain(n - 2);
+    return climbStairs(n - 1) + climbStairs(n - 2);
 }
 
-int climbStairsIter(int n) {
-    if (n <= 2) {
-        return n;
-    }
-
-    int a = 1;
-    int b = 2;
-
-    for (int i = 3; i <= n; ++i) {
-        int next = a + b;
-        a = b;
-        b = next;
-    }
-
-    return b;
-}
-
-double fastPow(double x, int n) {
+double fastPow(double x, long long n) {
     if (n == 0) {
         return 1.0;
     }
@@ -184,51 +107,39 @@ double fastPow(double x, int n) {
 }
 
 int main() {
-
-    //1st task
-    cout << reverseMain("tiger") << endl;
-    cout << reverseTail("tiger") << endl;
-
+    cout << "Завдання 1:" << endl;
+    string text = "tiger";
+    cout << "Вхідний рядок: " << text << endl;
+    cout << "Результат: " << reverseString(text, static_cast<int>(text.size()) - 1) << endl;
     cout << endl;
 
-    //2nd task
-    ListNode* list1 = createList({ 1, 2, 3, 4 });
-    ListNode* swapped1 = swapPairsMain(list1);
-    printList(swapped1);
-
-    ListNode* list2 = createList({ 1, 2, 3, 4 });
-    ListNode* swapped2 = swapPairsIter(list2);
-    printList(swapped2);
-
-    deleteList(swapped1);
-    deleteList(swapped2);
-
+    cout << "Завдання 2:" << endl;
+    int values[] = {1, 2, 3, 4};
+    ListNode* head = createList(values, 4);
+    cout << "Початковий список: ";
+    printList(head);
+    head = swapPairs(head);
+    cout << "Після перестановки: ";
+    printList(head);
+    deleteList(head);
     cout << endl;
 
-    //3rd task
-    cout << fibMain(2) << endl;
-    cout << fibMain(3) << endl;
-    cout << fibMain(4) << endl;
-
-    cout << fibIter(2) << endl;
-    cout << fibIter(3) << endl;
-    cout << fibIter(4) << endl;
-
+    cout << "Завдання 3:" << endl;
+    cout << "F(2) = " << fibonacci(2) << endl;
+    cout << "F(3) = " << fibonacci(3) << endl;
+    cout << "F(4) = " << fibonacci(4) << endl;
     cout << endl;
 
-    //4th task
-    cout << climbStairsMain(2) << endl;
-    cout << climbStairsMain(3) << endl;
-
-    cout << climbStairsIter(2) << endl;
-    cout << climbStairsIter(3) << endl;
-
+    cout << "Завдання 4:" << endl;
+    cout << "n = 2: " << climbStairs(2) << endl;
+    cout << "n = 3: " << climbStairs(3) << endl;
     cout << endl;
 
-	//5th task
-    cout << fastPow(2.0, 10) << endl;
-    cout << fastPow(2.1, 3) << endl;
-    cout << fastPow(2.0, -2) << endl;
+    cout << "Завдання 5:" << endl;
+    cout << "2^10 = " << fastPow(2.0, 10) << endl;
+    cout << "2.1^3 = " << fastPow(2.1, 3) << endl;
+    cout << "2^(-2) = " << fastPow(2.0, -2) << endl;
+    cout << endl;
 
     return 0;
 }
